@@ -5,7 +5,7 @@ app = FastAPI()
 
 def get_traffic_data():
     api_key = '534c54647767756e36395944535144'  # 주어진 API 키
-    url = f'http://openapi.seoul.go.kr:8088/{api_key}/json/TrafficInfo/1/10/?TYPE=xml'  # TYPE 파라미터를 xml로 설정
+    url = f'http://openapi.seoul.go.kr:8088/{api_key}/xml/TrafficInfo/1/5/1220003800'  # TYPE 파라미터를 xml로 설정
     response = requests.get(url)
     
     if response.status_code != 200:
