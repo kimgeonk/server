@@ -7,8 +7,9 @@ import json
 app = FastAPI()
 
 def get_traffic_data():
-    url = 'http://openapi.seoul.go.kr:8088/534c54647767756e36395944535144/xml/VolInfo/1/5/A-02/20240612/18/'
+    url = 'http://openapi.seoul.go.kr:8088/534c54647767756e36395944535144/xml/VolInfo/1/5/A-08/20240612/18/'
     response = requests.get(url)
+
     root = ET.fromstring(response.content)
     return root
 
@@ -18,7 +19,7 @@ def parse_traffic_data(data):
     for row in data.iter('row'):
         io_type = row.findtext('io_type', '해당 사항 없음')
         io_type_str = "입구" if io_type == '1' else "출구" if io_type == '2' else "알 수 없음"
-
+        
         vol = int(row.findtext('vol', '0'))
         if vol >= 1000:
             status = "혼잡"
@@ -31,9 +32,8 @@ def parse_traffic_data(data):
             '도로명': row.findtext('spot_num', '해당 사항 없음'),
             '날짜': row.findtext('ymd', '해당 사항 없음'),
             '시간': row.findtext('hh', '해당 사항 없음'),
-            '차량의 수': vol,
-            '입출구': io_type_str,
-            '상태': status
+            '차량의 수': row.findtext('vol', '해당 사항 없음'),
+            '입출구': io_type_str
         }
         traffic_info.append(info)
     
@@ -46,15 +46,15 @@ async def read_traffic():
         traffic_data = parse_traffic_data(data)
         
         for info in traffic_data:
-            if info['도로명'] == 'A-02':
-                info['도로명'] = '사직로'
+            if info['도로명'] == 'A-08':
+                info['도로명'] = '종로(동묘앞역)'
 
         if not traffic_data:
             return JSONResponse(content={"message": "교통 데이터가 없습니다."}, status_code=200)
         else:
             print("실시간 도로 소통 정보:")
             for info in traffic_data:
-                print(f"도로명: {info['도로명']}, 날짜: {info['날짜']}, 시간: {info['시간']}, 입출구: {info['입출구']}, 차량의 수: {info['차량의 수']}, 상태: {info['상태']}")
+                print(f"도로명: {info['도로명']}, 날짜: {info['날짜']}, 시간: {info['시간']}, 입출구: {info['입출구']}, 차량의 수: {info['차량의 수']}")
             
             return JSONResponse(content=traffic_data, status_code=200)
     
