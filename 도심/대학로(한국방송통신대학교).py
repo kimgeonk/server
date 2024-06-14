@@ -20,7 +20,8 @@ def parse_traffic_data(data):
         io_type = row.findtext('io_type', '해당 사항 없음')
         io_type_str = "입구" if io_type == '1' else "출구" if io_type == '2' else "알 수 없음"
         
-        vol = int(row.findtext('vol', '0'))
+        vol_str = row.findtext('vol', '0')
+        vol = int(vol_str) if vol_str.isdigit() else 0
         if vol >= 1000:
             status = "혼잡"
         elif vol >= 500:

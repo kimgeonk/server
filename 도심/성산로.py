@@ -7,9 +7,8 @@ import json
 app = FastAPI()
 
 def get_traffic_data():
-    url = 'http://openapi.seoul.go.kr:8088/534c54647767756e36395944535144/xml/VolInfo/1/5/A-18/20240612/18/'
+    url = 'http://openapi.seoul.go.kr:8088/534c54647767756e36395944535144/xml/VolInfo/1/5/A-01/20240612/18/'
     response = requests.get(url)
-
     root = ET.fromstring(response.content)
     return root
 
@@ -20,7 +19,8 @@ def parse_traffic_data(data):
         io_type = row.findtext('io_type', '해당 사항 없음')
         io_type_str = "입구" if io_type == '1' else "출구" if io_type == '2' else "알 수 없음"
         
-        vol = int(row.findtext('vol', '0'))
+        vol_str = row.findtext('vol', '0')
+        vol = int(vol_str) if vol_str.isdigit() else 0
         if vol >= 1000:
             status = "혼잡"
         elif vol >= 500:
@@ -44,10 +44,10 @@ async def read_traffic():
     try:
         data = get_traffic_data()
         traffic_data = parse_traffic_data(data)
-        
+  
         for info in traffic_data:
-            if info['도로명'] == 'A-18':
-                info['도로명'] = '을지로 3가역'
+            if info['도로명'] == 'A-01':
+                info['도로명'] = '성산로'
 
         if not traffic_data:
             return JSONResponse(content={"message": "교통 데이터가 없습니다."}, status_code=200)
