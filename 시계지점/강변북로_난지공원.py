@@ -9,11 +9,6 @@ app = FastAPI()
 def get_traffic_data():
     url = 'http://openapi.seoul.go.kr:8088/534c54647767756e36395944535144/xml/VolInfo/1/5/B-36/20240612/18/'
     response = requests.get(url)
-    
-    if response.status_code != 200:
-        print(f"API에서 데이터를 가져오는 중 오류 발생: {response.status_code}")
-        raise HTTPException(status_code=response.status_code, detail="API에서 데이터를 가져오는 중 오류 발생")
-
     root = ET.fromstring(response.content)
     return root
 
@@ -50,8 +45,7 @@ async def read_traffic():
     try:
         data = get_traffic_data()
         traffic_data = parse_traffic_data(data)
-        
-        # 도로명이 A-02일 때 "사직로"로 변경
+
         for info in traffic_data:
             if info['도로명'] == 'B-36':
                 info['도로명'] = '강변북로(난지공원)'
